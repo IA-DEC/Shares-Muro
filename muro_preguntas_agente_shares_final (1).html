@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muro de Ideas — Agente de Shares</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --uni-blue: #1F36C7;
+            --uni-blue-light: #00A0E3;
+            --uni-blue-dark: #0D1B6F;
+            --uni-green: #00B140;
+            --bg: #F0F4FF;
+            --card-bg: #FFFFFF;
+            --text-dark: #1A1A2E;
+            --text-med: #4A4A6A;
+            --text-light: #8A8AAA;
+            --border: #E2E8F0;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--uni-blue-dark) 0%, var(--uni-blue) 45%, var(--uni-blue-light) 100%);
+            padding: 48px 20px 65px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content:'';
+            position:absolute; inset:0;
+            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.06) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 30%, rgba(0,160,227,0.12) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        .header-inner { position:relative; z-index:1; }
+        .header-emoji {
+            font-size: 3.2rem;
+            display: block;
+            margin-bottom: 8px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .header h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+        .header p {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.75);
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .wave {
+            position: absolute;
+            bottom: -1px; left: 0; width: 100%; line-height: 0;
+        }
+        .wave svg { display: block; width: 100%; height: 38px; }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 36px 20px 60px;
+        }
+
+        /* CONFIG BANNER */
+        .config-banner {
+            background: linear-gradient(135deg, #FFF7ED, #FFFBF5);
+            border: 1.5px solid #FDBA74;
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            color: #92400E;
+            line-height: 1.6;
+            display: none;
+        }
+        .config-banner strong { color: #78350F; }
+        .config-banner code {
+            background: #FEF3C7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* FORM */
+        .form-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
+        .form-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-title span { font-size: 1.3rem; }
+
+        .form-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 22px;
+            margin-top: -12px;
+        }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-med);
+            margin-bottom: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group label .label-icon { font-size: 1rem; }
+        .optional-tag {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-light);
+            text-transform: lowercase;
+            letter-spacing: 0;
+            font-style: italic;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            color: var(--text-dark);
+            transition: all 0.25s ease;
+            background: #FAFBFF;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--uni-blue);
+            box-shadow: 0 0 0 3px rgba(31,54,199,0.12);
+            background: #fff;
+        }
+        .form-textarea { resize: vertical; min-height: 72px; }
+
+        .form-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 22px 0;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, var(--uni-blue), var(--uni-blue-light));
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(31,54,199,0.3);
+            margin-top: 6px;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(31,54,199,0.4);
+        }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-msg, .error-msg {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 16px;
+            animation: slideIn 0.3s ease;
+        }
+        .success-msg {
+            background: linear-gradient(135deg, #E8FFF0, #F0FFF4);
+            border: 1.5px solid #A7F3D0;
+            color: #047857;
+        }
+        .error-msg {
+            background: linear-gradient(135deg, #FFF5F5, #FFF0F0);
+            border: 1.5px solid #FCA5A5;
+            color: #B91C1C;
+        }
+        .success-msg.show, .error-msg.show { display: flex; }
+
+        @keyframes slideIn {
+            from { opacity:0; transform:translateY(-8px); }
+            to { opacity:1; transform:translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .shake { animation: shake 0.4s ease; }
+
+        /* TOOLBAR */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .toolbar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            border-radius: 50px;
+            padding: 3px 12px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #DC2626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .live-dot {
+            width: 7px; height: 7px;
+            background: #DC2626;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity:1; transform:scale(1); }
+            50% { opacity:0.5; transform:scale(0.7); }
+        }
+
+        .ideas-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            padding: 7px 16px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-med);
+        }
+        .ideas-count .count-num {
+            background: var(--uni-blue);
+            color: #fff;
+            min-width: 26px; height: 26px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0 6px;
+        }
+        .export-btn {
+            padding: 7px 18px;
+            border-radius: 50px;
+            border: 1.5px solid var(--border);
+            background: var(--card-bg);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-med);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .export-btn:hover { border-color: var(--uni-green); color: var(--uni-green); }
+
+        /* CARDS GRID */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px 24px 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+            animation: fadeUp 0.4s ease both;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: linear-gradient(to bottom, var(--uni-blue), var(--uni-blue-light));
+            border-radius: var(--radius) 0 0 var(--radius);
+            transition: width 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+        .card:hover::before { width: 6px; }
+
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(16px); }
+            to { opacity:1; transform:translateY(0); }
+        }
+
+        .card-question {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.55;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+
+        .card-section {
+            background: #F8FAFF;
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+        .card-section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .card-section-text {
+            font-size: 0.84rem;
+            line-height: 1.55;
+            color: var(--text-med);
+        }
+
+        .card-section.format-section {
+            background: linear-gradient(135deg, #EEF0FF, #F0F8FF);
+            border: 1px solid #DDE3FF;
+        }
+        .card-section.format-section .card-section-label {
+            color: var(--uni-blue);
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #F1F5F9;
+            padding-top: 12px;
+            margin-top: 6px;
+        }
+        .vote-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 50px;
+            border: 1.5px solid var(--border);
+            background: #FAFBFF;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-med);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .vote-btn:hover {
+            border-color: var(--uni-blue-light);
+            color: var(--uni-blue);
+            background: #EEF0FF;
+        }
+        .vote-btn.voted {
+            background: var(--uni-blue);
+            color: #fff;
+            border-color: var(--uni-blue);
+        }
+        .card-date {
+            font-size: 0.72rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* STATES */
+        .state-container {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1 / -1;
+        }
+        .state-container .state-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
+        .state-container p { font-size: 0.95rem; color: var(--text-light); margin-bottom: 6px; }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--uni-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .retry-btn {
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: 1.5px solid var(--uni-blue);
+            background: #fff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--uni-blue);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-top: 10px;
+        }
+        .retry-btn:hover { background: var(--uni-blue); color: #fff; }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--uni-blue-dark), var(--uni-blue));
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            letter-spacing: 0.8px;
+        }
+        .footer strong { color: #fff; font-weight: 600; }
+        .footer-line {
+            width: 40px; height: 3px;
+            background: var(--uni-blue-light);
+            border-radius: 3px;
+            margin: 0 auto 10px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.7rem; }
+            .header { padding: 35px 15px 55px; }
+            .container { padding: 24px 14px 40px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .form-section { padding: 22px 18px; }
+            .toolbar { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-inner">
+        <span class="header-emoji">🤖</span>
+        <h1>Muro de Ideas</h1>
+        <p>Agente de Shares · Dejá tu pregunta</p>
+    </div>
+    <div class="wave">
+        <svg viewBox="0 0 1440 38" preserveAspectRatio="none">
+            <path fill="#F0F4FF" d="M0,18 C320,38 640,0 960,18 C1120,28 1320,22 1440,18 L1440,38 L0,38Z"/>
+        </svg>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+    <!-- CONFIG BANNER -->
+    <div class="config-banner" id="configBanner">
+        ⚠️ <strong>Configuración pendiente:</strong> Editá el archivo HTML y reemplazá los datos de Firebase en la sección <code>firebaseConfig</code> con los de tu proyecto. Mirá las instrucciones que te pasaron para obtenerlos.
+    </div>
+
+    <!-- FORM -->
+    <div class="form-section" id="formSection">
+        <div class="form-title"><span>💡</span> Dejá tu idea para el agente</div>
+        <p class="form-subtitle">Completá lo que quieras — todos los campos son opcionales. Podés dejar solo una pregunta, solo cómo querés que responda, o todo junto.</p>
+
+        <div class="form-group">
+            <label><span class="label-icon">❓</span> ¿Qué le preguntarías al agente? <span class="optional-tag">(opcional)</span></label>
+            <input class="form-input" id="inputQ" type="text" placeholder="Ej: ¿Cómo viene el share de T1 de Pelo en los últimos 6 meses?">
+        </div>
+
+        <div class="form-group">
+            <label><span class="label-icon">💬</span> ¿Cómo te gustaría que responda? <span class="optional-tag">(opcional)</span></label>
+            <textarea class="form-textarea" id="inputA" placeholder="Ej: Que me diga si estamos arriba o abajo del objetivo y me explique por qué..."></textarea>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-group">
+            <label><span class="label-icon">📊</span> ¿Con qué te gustaría que responda específicamente? <span class="optional-tag">(opcional)</span></label>
+            <textarea class="form-textarea" id="inputF" placeholder="Ej: Con un gráfico de barras, con una tabla comparativa, que tenga en cuenta los objetivos del mix, etc."></textarea>
+            <div class="form-hint">📌 Podés pedir gráficos, tablas, comparativas, o que tenga en cuenta datos específicos como objetivos, mix, precios, etc.</div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitCard()">➕ Publicar</button>
+
+        <div class="success-msg" id="successMsg">✅ ¡Publicado con éxito! Gracias por tu idea.</div>
+        <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="toolbar-title">📋 Preguntas del equipo</div>
+            <div class="live-badge"><span class="live-dot"></span> EN VIVO</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <div class="ideas-count">💡 Ideas <span class="count-num" id="countBadge">0</span></div>
+            <button class="export-btn" onclick="exportCSV()">📥 Exportar CSV</button>
+        </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards-grid" id="cardsGrid"></div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <div class="footer-line"></div>
+    <p><strong>Unilever</strong> · AI Team &nbsp;|&nbsp; Commercial AI · BPC</p>
+</div>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script>
+    // ================================================================
+    //  🔧 CONFIGURACIÓN FIREBASE
+    //  Reemplazá estos valores con los de tu proyecto de Firebase
+    // ================================================================
+    const firebaseConfig = {
+        apiKey:            "AIzaSyC7k5UAL8FvmcE6jGUJaQU5LzSbU8gHjW8",
+        authDomain:        "muroideasshares.firebaseapp.com",
+        databaseURL:       "https://muroideasshares-default-rtdb.firebaseio.com",
+        projectId:         "muroideasshares",
+        storageBucket:     "muroideasshares.firebasestorage.app",
+        messagingSenderId: "709033538774",
+        appId:             "1:709033538774:web:37ed1c9bc366b3f4338577"
+    };
+    // ================================================================
+
+    let cards = [];
+    let db = null;
+    let ideasRef = null;
+
+    // ========== HELPERS ==========
+    function escHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+    }
+    function todayStr() {
+        return new Date().toLocaleDateString("es-AR", { day:"numeric", month:"short", year:"numeric" });
+    }
+    function isConfigured() {
+        return firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("👉");
+    }
+    function isVoted(key) {
+        return localStorage.getItem("muro_voted_" + key) === "true";
+    }
+    function setVoted(key, val) {
+        if (val) localStorage.setItem("muro_voted_" + key, "true");
+        else localStorage.removeItem("muro_voted_" + key);
+    }
+    function hideMessages() {
+        document.getElementById("successMsg").classList.remove("show");
+        document.getElementById("errorMsg").classList.remove("show");
+    }
+    function showSuccess(text) {
+        const el = document.getElementById("successMsg");
+        el.textContent = "✅ " + text;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 3500);
+    }
+    function showError(text) {
+        const el = document.getElementById("errorMsg");
+        el.textContent = "⚠️ " + text;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 4000);
+    }
+    function formatDate(timestamp) {
+        if (!timestamp) return todayStr();
+        return new Date(timestamp).toLocaleDateString("es-AR", { day:"numeric", month:"short" });
+    }
+
+    // ========== FIREBASE INIT ==========
+    function initFirebase() {
+        const grid = document.getElementById("cardsGrid");
+        grid.innerHTML = '<div class="state-container"><div class="spinner"></div><p>Cargando ideas...</p></div>';
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            ideasRef = db.ref("muro_ideas");
+
+            // Real-time listener — se actualiza automáticamente cuando alguien publica
+            ideasRef.on("value", (snapshot) => {
+                cards = [];
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const item = data[key];
+                        cards.push({
+                            key:   key,
+                            q:     item.pregunta || "",
+                            a:     item.respuesta || "",
+                            f:     item.formato || "",
+                            votes: item.votos || 0,
+                            voted: isVoted(key),
+                            date:  formatDate(item.fecha)
+                        });
+                    });
+                }
+                renderCards();
+            }, (error) => {
+                console.error("Error Firebase:", error);
+                grid.innerHTML =
+                    '<div class="state-container">' +
+                    '<span class="state-icon">🔌</span>' +
+                    '<p><strong>No se pudo conectar con Firebase</strong></p>' +
+                    '<p style="font-size:0.82rem;">Verificá que los datos de configuración sean correctos y que la base de datos esté activa.</p>' +
+                    '<button class="retry-btn" onclick="location.reload()">🔄 Reintentar</button>' +
+                    '</div>';
+            });
+
+        } catch (err) {
+            console.error("Error inicializando Firebase:", err);
+            grid.innerHTML =
+                '<div class="state-container">' +
+                '<span class="state-icon">🔌</span>' +
+                '<p><strong>Error al conectar</strong></p>' +
+                '<p style="font-size:0.82rem;">' + escHtml(err.message) + '</p>' +
+                '<button class="retry-btn" onclick="location.reload()">🔄 Reintentar</button>' +
+                '</div>';
+        }
+    }
+
+    // ========== SUBMIT ==========
+    async function submitCard() {
+        hideMessages();
+        const q = document.getElementById("inputQ").value.trim();
+        const a = document.getElementById("inputA").value.trim();
+        const f = document.getElementById("inputF").value.trim();
+
+        if (!q && !a && !f) {
+            showError("Completá al menos un campo para poder publicar.");
+            document.getElementById("formSection").classList.add("shake");
+            setTimeout(() => document.getElementById("formSection").classList.remove("shake"), 500);
+            return;
+        }
+
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.textContent = "⏳ Publicando...";
+
+        try {
+            await ideasRef.push({
+                pregunta:  q,
+                respuesta: a,
+                formato:   f,
+                votos:     0,
+                fecha:     firebase.database.ServerValue.TIMESTAMP
+            });
+
+            document.getElementById("inputQ").value = "";
+            document.getElementById("inputA").value = "";
+            document.getElementById("inputF").value = "";
+
+            showSuccess("¡Publicado con éxito! Gracias por tu idea.");
+
+        } catch (err) {
+            console.error("Error al publicar:", err);
+            showError("No se pudo publicar. Verificá tu conexión e intentá de nuevo.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "➕ Publicar";
+        }
+    }
+
+    // ========== VOTE ==========
+    async function vote(key) {
+        const card = cards.find(c => c.key === key);
+        if (!card) return;
+
+        const wasVoted = card.voted;
+        const newVotes = wasVoted ? Math.max(0, card.votes - 1) : card.votes + 1;
+
+        // Optimistic update
+        card.voted = !wasVoted;
+        card.votes = newVotes;
+        setVoted(key, !wasVoted);
+        renderCards();
+
+        try {
+            await ideasRef.child(key).update({ votos: newVotes });
+        } catch (err) {
+            // Rollback
+            console.error("Error al votar:", err);
+            card.voted = wasVoted;
+            card.votes = wasVoted ? newVotes + 1 : newVotes - 1;
+            setVoted(key, wasVoted);
+            renderCards();
+        }
+    }
+
+    // ========== RENDER ==========
+    function renderCards() {
+        const grid = document.getElementById("cardsGrid");
+        document.getElementById("countBadge").textContent = cards.length;
+
+        if (cards.length === 0) {
+            grid.innerHTML = '<div class="state-container"><span class="state-icon">💡</span><p>Todavía no hay ideas. ¡Sé el primero en publicar!</p></div>';
+            return;
+        }
+
+        const sorted = [...cards].sort((a, b) => b.votes - a.votes);
+
+        grid.innerHTML = sorted.map((c, i) => {
+            let html = '<div class="card" style="animation-delay:' + (i * 0.05) + 's">';
+
+            if (c.q) {
+                html += '<div class="card-question">❓ ' + escHtml(c.q) + '</div>';
+            }
+
+            if (c.a) {
+                html += '<div class="card-section">';
+                html += '<div class="card-section-label">💬 Respuesta esperada</div>';
+                html += '<div class="card-section-text">' + escHtml(c.a) + '</div>';
+                html += '</div>';
+            }
+
+            if (c.f) {
+                html += '<div class="card-section format-section">';
+                html += '<div class="card-section-label">📊 Formato / Info específica</div>';
+                html += '<div class="card-section-text">' + escHtml(c.f) + '</div>';
+                html += '</div>';
+            }
+
+            html += '<div class="card-footer">';
+            html += '<button class="vote-btn ' + (c.voted ? 'voted' : '') + '" onclick="vote(\''+c.key+'\')">'; 
+            html += '👍 <span>' + c.votes + '</span></button>';
+            html += '<span class="card-date">' + (c.date || todayStr()) + '</span>';
+            html += '</div></div>';
+            return html;
+        }).join("");
+    }
+
+    // ========== EXPORT CSV ==========
+    function exportCSV() {
+        if (cards.length === 0) return;
+        const BOM = "\uFEFF";
+        let csv = BOM + "Pregunta;Respuesta esperada;Formato preferido;Votos\n";
+        cards.forEach(c => {
+            const q = (c.q || "").replace(/"/g, '""');
+            const a = (c.a || "").replace(/"/g, '""');
+            const f = (c.f || "").replace(/"/g, '""');
+            csv += '"' + q + '";"' + a + '";"' + f + '";' + c.votes + '\n';
+        });
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "muro_preguntas_shares.csv";
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ========== INIT ==========
+    if (isConfigured()) {
+        initFirebase();
+    } else {
+        document.getElementById("configBanner").style.display = "block";
+        document.getElementById("cardsGrid").innerHTML =
+            '<div class="state-container">' +
+            '<span class="state-icon">🔧</span>' +
+            '<p><strong>Configuración necesaria</strong></p>' +
+            '<p style="font-size:0.82rem;">Editá el código HTML y completá los datos de Firebase en la sección <code>firebaseConfig</code>.<br>Segui las instrucciones de setup que te pasaron.</p>' +
+            '</div>';
+        document.getElementById("countBadge").textContent = "0";
+    }
+</script>
+
+</body>
+</html>
